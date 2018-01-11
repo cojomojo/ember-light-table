@@ -242,13 +242,31 @@ const LightTable = Component.extend({
     return `${totalWidth}${unit}`;
   }),
 
-  style: computed('totalWidth', 'height', 'occlusion', function() {
+  /**
+   * Estimated width of table. If provided, the light-table div will have a width set to the estimate.
+   *
+   * @property estimatedWidth
+   * @type {String}
+   */
+  estimatedWidth: null,
+
+  style: computed('estimatedWidth', 'totalWidth', 'height', 'occlusion', function() {
+    let estimatedWidth = this.get('estimatedWidth');
     let totalWidth = this.get('totalWidth');
     let style = this.getProperties(['height']);
 
-    if (totalWidth) {
+    if (estimatedWidth) {
       if (this.get('occlusion')) {
-        const scrollbarThickness = this.get('scrollbarThickness.thickness');
+        let scrollbarThickness = this.get('scrollbarThickness.thickness');
+        style.width = `calc(${estimatedWidth} + ${scrollbarThickness}px)`;
+      } else {
+        style.width = estimatedWidth;
+      }
+
+      style.overflowX = 'auto';
+    } else if (totalWidth) {
+      if (this.get('occlusion')) {
+        let scrollbarThickness = this.get('scrollbarThickness.thickness');
         style.width = `calc(${totalWidth} + ${scrollbarThickness}px)`;
       } else {
         style.width = totalWidth;
